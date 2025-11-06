@@ -238,19 +238,26 @@
     // open add
     $('#addOpen').addEventListener('click', ()=>{ window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); document.getElementById('code').focus(); })
 
-    // load initial demo if empty
-      (function init(){
+    // Espera a que toda la página cargue antes de mostrar scripts
+window.addEventListener('load', () => {
   const arr = load();
-  if(!Array.isArray(arr) || arr.length===0){
-    const demo = [{id:uid(),title:'Demo: Print Hello',tags:'demo',code:'print(\"Hola mundo desde Lua\")',created:Date.now()}];
+  if (!Array.isArray(arr) || arr.length === 0) {
+    const demo = [{
+      id: uid(),
+      title: 'Demo: Print Hello',
+      tags: 'demo',
+      code: 'print("Hola mundo desde Lua")',
+      created: Date.now()
+    }];
     saveAll(demo);
   }
   render();
-  document.getElementById('welcome').style.display='none';
-})();
 
-    // hide welcome after 1.6s
-    setTimeout(()=>{const w=document.getElementById('welcome'); if(w) w.style.opacity=0},1800);
-
-  </script></body>
-</html>
+  // Ocultar animación de bienvenida más suave
+  const w = document.getElementById('welcome');
+  if (w) {
+    w.style.transition = 'opacity 0.6s ease';
+    w.style.opacity = '0';
+    setTimeout(() => (w.style.display = 'none'), 800);
+  }
+});
