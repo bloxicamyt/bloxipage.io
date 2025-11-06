@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Scripts de Lua</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .script-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .script-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .script-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .script-title {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .script-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .code-container {
+            position: relative;
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .code-container pre {
+            margin: 0;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #f0f0f0;
+            color: #666;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .filter-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .script-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Scrollbar personalizada para el código */
+        .code-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .code-container::-webkit-scrollbar-track {
+            background: #2d2d2d;
+            border-radius: 4px;
+        }
+
+        .code-container::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        .code-container::-webkit-scrollbar-thumb:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 Bloxicam Page</h1>
+            <p>Colección de scripts para tus proyectos</p>
+        </header>
+
+        <div class="filter-buttons" id="filterButtons">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+        </div>
+
+        <div id="scriptsContainer"></div>
+        <div id="noResults" class="no-results" style="display: none;">
+            No se encontraron scripts con ese filtro
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // AQUÍ AGREGAS TUS SCRIPTS (FÁCIL DE EDITAR)
+        // ============================================
+        const scripts = [
+            {
+                title: "Pantalla de carga minimalista script ",
+                description: "Pantalla de carga minimalista para roblox studio (lite) script",
+                category: "Utilidades",
+                code: `-- PANTALLA DE CARGA MINIMALISTA PARA ROBLOX STUDIO
+-- Coloca este LocalScript en StarterPlayer > StarterPlayerScripts
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- ============================================
+-- CONFIGURACIÓN (Personaliza aquí)
+-- ============================================
+local GAME_TITLE = "MI JUEGO ÉPICO" -- ← Cambia el título aquí
+local LOADING_TIME = 8 -- Segundos totales de carga
+local MUSIC_ID = "rbxassetid://1838635749" -- ← ID de tu música (opcional)
+local ENABLE_MUSIC = true -- true = con música, false = sin música
+
+-- ============================================
+-- CREAR SCREENGUI
+-- ============================================
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "LoadingScreen"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.DisplayOrder = 10
+screenGui.Parent = playerGui
+
+-- Fondo negro
+local background = Instance.new("Frame")
+background.Name = "Background"
+background.Size = UDim2.new(1, 0, 1, 0)
+background.Position = UDim2.new(0, 0, 0, 0)
+background.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+background.BorderSizePixel = 0
+background.Parent = screenGui
+
+-- ============================================
+-- MÚSICA DE FONDO
+-- ============================================
+if ENABLE_MUSIC then
+	local music = Instance.new("Sound")
+	music.Name = "LoadingMusic"
+	music.SoundId = MUSIC_ID
+	music.Volume = 0.3
+	music.Looped = true
+	music.Parent = screenGui
+	music:Play()
+	
+	-- Fade out al terminar
+	task.spawn(function()
+		wait(LOADING_TIME)
+		for i = 1, 10 do
+			music.Volume = music.Volume - 0.03
+			wait(0.1)
+		end
+		music:Stop()
+	end)
+end
+
+-- ============================================
+-- TÍTULO DEL JUEGO (Más pequeño y blanco)
+-- ============================================
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "Title"
+titleLabel.Size = UDim2.new(0, 400, 0, 50)
+titleLabel.Position = UDim2.new(0.5, -200, 0.42, -25)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = GAME_TITLE
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 32
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextTransparency = 1
+titleLabel.Parent = background
+
+-- Animación de aparición del título
+TweenService:Create(titleLabel, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+	TextTransparency = 0
+}):Play()
+
+-- ============================================
+-- PORCENTAJE DE CARGA (Arriba de la barra)
+-- ============================================
+local percentLabel = Instance.new("TextLabel")
+percentLabel.Name = "Percentage"
+percentLabel.Size = UDim2.new(0, 100, 0, 30)
+percentLabel.Position = UDim2.new(0.5, -50, 0.52, -40)
+percentLabel.BackgroundTransparency = 1
+percentLabel.Text = "0%"
+percentLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+percentLabel.TextSize = 20
+percentLabel.Font = Enum.Font.GothamBold
+percentLabel.Parent = background
+
+-- ============================================
+-- BARRA DE CARGA (Más pequeña y roja)
+-- ============================================
+local barContainer = Instance.new("Frame")
+barContainer.Name = "BarContainer"
+barContainer.Size = UDim2.new(0, 350, 0, 8)
+barContainer.Position = UDim2.new(0.5, -175, 0.52, 0)
+barContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+barContainer.BorderSizePixel = 0
+barContainer.Parent = background
+
+local barCorner = Instance.new("UICorner")
+barCorner.CornerRadius = UDim.new(1, 0)
+barCorner.Parent = barContainer
+
+-- Barra de progreso roja
+local progressBar = Instance.new("Frame")
+progressBar.Name = "ProgressBar"
+progressBar.Size = UDim2.new(0, 0, 1, 0)
+progressBar.Position = UDim2.new(0, 0, 0, 0)
+progressBar.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+progressBar.BorderSizePixel = 0
+progressBar.Parent = barContainer
+
+local progressCorner = Instance.new("UICorner")
+progressCorner.CornerRadius = UDim.new(1, 0)
+progressCorner.Parent = progressBar
+
+-- Brillo sutil en la barra
+local barGlow = Instance.new("Frame")
+barGlow.Name = "Glow"
+barGlow.Size = UDim2.new(1, 4, 1, 4)
+barGlow.Position = UDim2.new(0, -2, 0, -2)
+barGlow.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+barGlow.BackgroundTransparency = 0.7
+barGlow.BorderSizePixel = 0
+barGlow.ZIndex = 0
+barGlow.Parent = progressBar
+
+local glowCorner = Instance.new("UICorner")
+glowCorner.CornerRadius = UDim.new(1, 0)
+glowCorner.Parent = barGlow
+
+-- ============================================
+-- TEXTO "CARGANDO..."
+-- ============================================
+local loadingText = Instance.new("TextLabel")
+loadingText.Name = "LoadingText"
+loadingText.Size = UDim2.new(0, 200, 0, 30)
+loadingText.Position = UDim2.new(0.5, -100, 0.56, 0)
+loadingText.BackgroundTransparency = 1
+loadingText.Text = "Cargando"
+loadingText.TextColor3 = Color3.fromRGB(180, 180, 180)
+loadingText.TextSize = 16
+loadingText.Font = Enum.Font.Gotham
+loadingText.Parent = background
+
+-- Animación de puntos suspensivos
+task.spawn(function()
+	local dots = 0
+	while loadingText.Parent do
+		dots = (dots % 3) + 1
+		loadingText.Text = "Cargando" .. string.rep(".", dots)
+		wait(0.5)
+	end
+end)
+
+-- ============================================
+-- BOTÓN SKIP (Pequeño, aparece al 60%)
+-- ============================================
+local skipButton = Instance.new("TextButton")
+skipButton.Name = "SkipButton"
+skipButton.Size = UDim2.new(0, 100, 0, 30)
+skipButton.Position = UDim2.new(0.5, -50, 0.62, 0)
+skipButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+skipButton.BorderSizePixel = 0
+skipButton.Text = "SKIP"
+skipButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+skipButton.TextSize = 14
+skipButton.Font = Enum.Font.GothamBold
+skipButton.AutoButtonColor = false
+skipButton.Visible = false
+skipButton.BackgroundTransparency = 1
+skipButton.TextTransparency = 1
+skipButton.Parent = background
+
+local skipCorner = Instance.new("UICorner")
+skipCorner.CornerRadius = UDim.new(0, 8)
+skipCorner.Parent = skipButton
+
+local skipStroke = Instance.new("UIStroke")
+skipStroke.Color = Color3.fromRGB(255, 255, 255)
+skipStroke.Thickness = 1.5
+skipStroke.Transparency = 1
+skipStroke.Parent = skipButton
+
+-- Función para mostrar el botón SKIP
+local function showSkipButton()
+	skipButton.Visible = true
+	TweenService:Create(skipButton, TweenInfo.new(0.5), {
+		BackgroundTransparency = 0,
+		TextTransparency = 0
+	}):Play()
+	TweenService:Create(skipStroke, TweenInfo.new(0.5), {
+		Transparency = 0.5
+	}):Play()
+end
+
+-- Efecto hover del botón
+skipButton.MouseEnter:Connect(function()
+	TweenService:Create(skipButton, TweenInfo.new(0.2), {
+		BackgroundColor3 = Color3.fromRGB(80, 80, 80),
+		Size = UDim2.new(0, 105, 0, 32)
+	}):Play()
+	TweenService:Create(skipStroke, TweenInfo.new(0.2), {
+		Transparency = 0.2
+	}):Play()
+end)
+
+skipButton.MouseLeave:Connect(function()
+	TweenService:Create(skipButton, TweenInfo.new(0.2), {
+		BackgroundColor3 = Color3.fromRGB(60, 60, 60),
+		Size = UDim2.new(0, 100, 0, 30)
+	}):Play()
+	TweenService:Create(skipStroke, TweenInfo.new(0.2), {
+		Transparency = 0.5
+	}):Play()
+end)
+
+-- ============================================
+-- PARTÍCULAS DECORATIVAS (Más sutiles)
+-- ============================================
+local function createParticle()
+	local particle = Instance.new("Frame")
+	particle.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
+	particle.Position = UDim2.new(math.random(0, 100) / 100, 0, -0.1, 0)
+	particle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	particle.BackgroundTransparency = math.random(80, 95) / 100
+	particle.BorderSizePixel = 0
+	particle.Parent = background
+	
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(1, 0)
+	corner.Parent = particle
+	
+	-- Animación de caída
+	local fallTime = math.random(4, 8)
+	TweenService:Create(particle, TweenInfo.new(fallTime, Enum.EasingStyle.Linear), {
+		Position = UDim2.new(particle.Position.X.Scale, 0, 1.1, 0)
+	}):Play()
+	
+	game:GetService("Debris"):AddItem(particle, fallTime)
+end
+
+-- Generar partículas sutiles
+task.spawn(function()
+	while background.Parent do
+		createParticle()
+		wait(0.3)
+	end
+end)
+
+-- ============================================
+-- LÓGICA DE CARGA
+-- ============================================
+local currentProgress = 0
+local isSkipped = false
+local skipShown = false
+
+local function updateProgress(targetPercent)
+	-- Animar porcentaje
+	TweenService:Create(percentLabel, TweenInfo.new(0.2), {
+		TextTransparency = 0.5
+	}):Play()
+	
+	wait(0.1)
+	percentLabel.Text = targetPercent .. "%"
+	currentProgress = targetPercent
+	
+	TweenService:Create(percentLabel, TweenInfo.new(0.2), {
+		TextTransparency = 0
+	}):Play()
+	
+	-- Animar barra
+	local barWidth = (targetPercent / 100) * 350
+	TweenService:Create(progressBar, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Size = UDim2.new(0, barWidth, 1, 0)
+	}):Play()
+	
+	-- Mostrar botón SKIP al llegar a 60%
+	if targetPercent >= 60 and not skipShown then
+		skipShown = true
+		showSkipButton()
+	end
+end
+
+local function finishLoading()
+	if isSkipped then return end
+	isSkipped = true
+	
+	print("¡Carga completada!")
+	
+	-- Animar salida
+	TweenService:Create(titleLabel, TweenInfo.new(0.8), {
+		TextTransparency = 1
+	}):Play()
+	
+	TweenService:Create(percentLabel, TweenInfo.new(0.8), {
+		TextTransparency = 1
+	}):Play()
+	
+	TweenService:Create(loadingText, TweenInfo.new(0.8), {
+		TextTransparency = 1
+	}):Play()
+	
+	TweenService:Create(barContainer, TweenInfo.new(0.8), {
+		BackgroundTransparency = 1
+	}):Play()
+	
+	TweenService:Create(progressBar, TweenInfo.new(0.8), {
+		BackgroundTransparency = 1
+	}):Play()
+	
+	TweenService:Create(skipButton, TweenInfo.new(0.8), {
+		BackgroundTransparency = 1,
+		TextTransparency = 1
+	}):Play()
+	
+	TweenService:Create(skipStroke, TweenInfo.new(0.8), {
+		Transparency = 1
+	}):Play()
+	
+	TweenService:Create(background, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+		BackgroundTransparency = 1
+	}):Play()
+	
+	wait(1)
+	screenGui:Destroy()
+	
+	-- Remover ReplicatedFirst default loading screen
+	ReplicatedFirst:RemoveDefaultLoadingScreen()
+end
+
+-- Botón Skip
+skipButton.MouseButton1Click:Connect(function()
+	print("¡Carga saltada!")
+	finishLoading()
+end)
+
+-- Proceso de carga automático
+task.spawn(function()
+	wait(0.5)
+	
+	-- Simular carga progresiva
+	local increments = {10, 15, 23, 29, 35, 42, 50, 58, 65, 73, 80, 87, 92, 96, 100}
+	local timePerIncrement = LOADING_TIME / #increments
+	
+	for _, percent in ipairs(increments) do
+		if isSkipped then break end
+		updateProgress(percent)
+		wait(timePerIncrement)
+	end
+	
+	if not isSkipped then
+		finishLoading()
+	end
+end)
+
+print("Pantalla de carga minimalista iniciada")`
+            },
+            {
+                title: "FPS counter, script",
+                description: "FPS counter ideal para tu juego, muestra los fps",
+                category: "juegos",
+                code: `-- FPS Counter para Roblox Studio Lite
+local RunService = game:GetService("RunService")
+local fpsLabel = script.Parent
+local frames = 0
+local lastTime = os.clock()
+local fps = 0
+
+fpsLabel.Text = "FPS: 0"
+fpsLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+fpsLabel.BackgroundTransparency = 1
+fpsLabel.TextScaled = true
+
+RunService.RenderStepped:Connect(function()
+    frames += 1
+    local currentTime = os.clock()
+    
+    if currentTime - lastTime >= 1 then
+        fps = frames
+        frames = 0
+        lastTime = currentTime
+        fpsLabel.Text = "FPS: " .. fps
+        
+        if fps < 30 then
+            fpsLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+        elseif fps < 50 then
+            fpsLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
+        else
+            fpsLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+        end
+    end
+end)
+`
+            },
+            {
+            
+            
+           
+            }
+        ];
+        // ============================================
+        // FIN DE LA SECCIÓN DE SCRIPTS
+        // ============================================
+
+        // Obtener categorías únicas
+        const categories = [...new Set(scripts.map(s => s.category))];
+        const filterButtons = document.getElementById('filterButtons');
+        
+        // Crear botones de filtro
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = 'filter-btn';
+            btn.textContent = cat;
+            btn.dataset.filter = cat;
+            filterButtons.appendChild(btn);
+        });
+
+        // Renderizar scripts
+        function renderScripts(filter = 'all') {
+            const container = document.getElementById('scriptsContainer');
+            const noResults = document.getElementById('noResults');
+            container.innerHTML = '';
+
+            const filtered = filter === 'all' 
+                ? scripts 
+                : scripts.filter(s => s.category === filter);
+
+            if (filtered.length === 0) {
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            filtered.forEach((script, index) => {
+                const card = document.createElement('div');
+                card.className = 'script-card';
+                card.innerHTML = `
+                    <div class="script-header">
+                        <div>
+                            <div class="script-title">${script.title}</div>
+                            <span class="tag">${script.category}</span>
+                        </div>
+                        <button class="copy-btn" onclick="copyCode(${index})">
+                            📋 Copiar Código
+                        </button>
+                    </div>
+                    <div class="script-description">${script.description}</div>
+                    <div class="code-container">
+                        <pre id="code-${index}">${escapeHtml(script.code)}</pre>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Función para copiar código
+        function copyCode(index) {
+            const codeElement = document.getElementById(`code-${index}`);
+            const code = scripts[index].code;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target.closest('.copy-btn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✓ ¡Copiado!';
+                btn.classList.add('copied');
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert('Error al copiar: ' + err);
+            });
+        }
+
+        // Función para escapar HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Manejador de filtros
+        document.getElementById('filterButtons').addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                renderScripts(e.target.dataset.filter);
+            }
+        });
+
+        // Renderizar scripts iniciales
+        renderScripts();
+    </script>
+</body>
+</html>
