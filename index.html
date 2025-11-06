@@ -236,13 +236,15 @@
     $('#addOpen').addEventListener('click', ()=>{ window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); document.getElementById('code').focus(); })
 
     // load initial demo if empty
-    (function init(){
-      const arr = load();
-      if(arr.length===0){
-        const demo = [{id:uid(),title:'Demo: Print Hello',tags:'demo',code:'print("Hola mundo desde Lua")',created:Date.now()}]; saveAll(demo);
-      }
-      render();
-    })();
+      (function init(){
+  const arr = load();
+  if(!Array.isArray(arr) || arr.length===0){
+    const demo = [{id:uid(),title:'Demo: Print Hello',tags:'demo',code:'print(\"Hola mundo desde Lua\")',created:Date.now()}];
+    saveAll(demo);
+  }
+  render();
+  document.getElementById('welcome').style.display='none';
+})();
 
     // hide welcome after 1.6s
     setTimeout(()=>{const w=document.getElementById('welcome'); if(w) w.style.opacity=0},1800);
