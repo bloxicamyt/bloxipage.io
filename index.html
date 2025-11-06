@@ -1,0 +1,251 @@
+<!doctype html>
+
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>bloxi page — tus scripts Lua</title>  <!-- Highlight.js for syntax highlighting -->  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>  <style>
+    :root{
+      --bg:#0f1724; /* deep navy */
+      --card:#0b1220;
+      --accent:#7c3aed; /* purple-ish */
+      --accent-2:#06b6d4; /* teal */
+      --muted:#94a3b8;
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(120deg,var(--bg),#071029 60%);}
+    .app{max-width:1000px;margin:32px auto;padding:24px;}
+
+    /* welcome animation */
+    .welcome {
+      position:fixed;inset:0;display:grid;place-items:center;z-index:60;
+      background:linear-gradient(180deg, rgba(7,10,20,0.9), rgba(7,10,20,0.6));backdrop-filter: blur(6px);
+      animation: fadeOut 1s ease 1.8s forwards;
+    }
+    .welcome-card{background:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:28px;border-radius:16px;box-shadow:0 8px 30px rgba(2,6,23,0.6);text-align:center;transform:translateY(20px);animation:pop 700ms cubic-bezier(.2,.9,.2,1) 400ms both;}
+    .welcome h1{margin:0;font-size:28px;color:var(--accent);letter-spacing:0.6px}
+    .welcome p{color:var(--muted);margin-top:10px}
+
+    @keyframes pop{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes fadeOut{to{opacity:0;visibility:hidden;pointer-events:none}}
+
+    header{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+    .logo{width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:white;font-weight:700}
+    h2{margin:0;color:white}
+    p.lead{color:var(--muted);margin:0;font-size:13px}
+
+    .controls{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}
+    .btn{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);padding:10px 14px;border-radius:10px;cursor:pointer;font-weight:600}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:0;color:white}
+
+    .grid{display:grid;grid-template-columns:1fr 340px;gap:18px}
+
+    /* list */
+    .list{display:flex;flex-direction:column;gap:12px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+    .meta{display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .meta .title{font-weight:700;color:white}
+    .meta .lang{font-size:12px;color:var(--muted);}
+    pre{margin-top:8px;border-radius:8px;padding:12px;overflow:auto}
+
+    .actions{display:flex;gap:8px;margin-top:10px}
+    .small{padding:6px 10px;font-size:13px;border-radius:8px}
+
+    /* right column form */
+    .panel{position:sticky;top:24px}
+    label{display:block;color:var(--muted);font-size:13px;margin-bottom:6px}
+    input[type=text], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.05);background:transparent;color:white;font-family:monospace}
+    textarea{min-height:160px;resize:vertical}
+    .hint{font-size:12px;color:var(--muted);margin-top:8px}
+
+    footer{color:var(--muted);font-size:13px;margin-top:22px}
+
+    /* responsive */
+    @media (max-width:980px){.grid{grid-template-columns:1fr}.panel{position:static}}
+
+    /* success toast */
+    .toast{position:fixed;right:20px;bottom:20px;background:#081423;padding:12px 14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);color:var(--muted);box-shadow:0 8px 30px rgba(2,6,23,0.6)}
+
+  </style></head>
+<body>
+  <div class="welcome" id="welcome">
+    <div class="welcome-card">
+      <h1>Bienvenid@ a bloxi page</h1>
+      <p>Tu hub de scripts Lua — entra, copia y comparte... sin desastre.</p>
+    </div>
+  </div>  <main class="app">
+    <header>
+      <div class="logo">B</div>
+      <div>
+        <h2>bloxi page</h2>
+        <p class="lead">Repositorio rápido de tus scripts Lua — bonito, ordenado y con copy fácil.</p>
+      </div>
+    </header><div class="controls">
+  <button class="btn" id="importBtn">Importar desde JSON</button>
+  <button class="btn" id="exportBtn">Exportar todo (JSON)</button>
+  <button class="btn primary" id="addOpen">+ Agregar script</button>
+  <button class="btn" id="clearAll">Eliminar todo</button>
+</div>
+
+<div class="grid">
+  <section>
+    <div id="list" class="list"></div>
+    <div id="empty" class="card" style="text-align:center;color:var(--muted);display:none">No hay scripts todavía. Agrega uno desde la derecha.</div>
+    <footer>La página guarda tus scripts en tu navegador (localStorage). Para subirlos al sitio en GitHub, guarda el HTML en el repositorio.</footer>
+  </section>
+
+  <aside class="panel">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong>Agregar nuevo script</strong>
+        <small class="lang">Lua</small>
+      </div>
+
+      <div style="margin-top:12px">
+        <label for="title">Título</label>
+        <input id="title" type="text" placeholder="Nombre del script, ej: ESP Simple" />
+
+        <label for="tags" style="margin-top:8px">Tags (opcional)</label>
+        <input id="tags" type="text" placeholder="ej: esp, visual, utility" />
+
+        <label for="code" style="margin-top:8px">Código (Lua)</label>
+        <textarea id="code" placeholder="Pega tu script aquí..."></textarea>
+
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn primary" id="save">Guardar</button>
+          <button class="btn" id="cancel">Reset</button>
+        </div>
+        <div class="hint">La página evita duplicados exactos. Si ves un error al pegar, revisa espacios en blanco.</div>
+      </div>
+    </div>
+
+    <div style="height:12px"></div>
+    <div class="card" style="text-align:center">
+      <strong>Atajos</strong>
+      <p class="hint">Usa Exportar para mover tus scripts a otra máquina. Importar sobrescribe si confirmas.</p>
+    </div>
+  </aside>
+</div>
+
+  </main>  <div id="toast" style="display:none" class="toast"></div>  <script>
+    // util
+    const $ = sel => document.querySelector(sel);
+    const toast = (t) => { const el = $('#toast'); el.textContent = t; el.style.display='block'; setTimeout(()=>el.style.display='none',2000); }
+
+    // storage key
+    const KEY = 'bloxi-scripts-v1';
+
+    function uid(){return 's_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
+
+    function load(){try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return []}}
+    function saveAll(arr){localStorage.setItem(KEY, JSON.stringify(arr))}
+
+    // render
+    function render(){
+      const list = $('#list'); list.innerHTML='';
+      const arr = load();
+      if(arr.length===0){$('#empty').style.display='block';return} else {$('#empty').style.display='none'}
+
+      arr.slice().reverse().forEach(item=>{
+        const card = document.createElement('div'); card.className='card';
+        const meta = document.createElement('div'); meta.className='meta';
+        const left = document.createElement('div'); left.innerHTML=`<div class="title">${escapeHtml(item.title||'Sin título')}</div><div class="lang">${escapeHtml(item.tags||'')}</div>`;
+        const right = document.createElement('div');
+
+        // buttons
+        const copyBtn = document.createElement('button'); copyBtn.className='btn small'; copyBtn.textContent='Copiar';
+        copyBtn.onclick = ()=>{
+          navigator.clipboard.writeText(item.code).then(()=>{toast('Código copiado')}).catch(()=>{fallbackCopy(item.code)})
+        }
+
+        const download = document.createElement('button'); download.className='btn small'; download.textContent='Descargar';
+        download.onclick = ()=>{downloadFile(item)}
+
+        const del = document.createElement('button'); del.className='btn small'; del.textContent='Eliminar';
+        del.onclick = ()=>{if(confirm('Eliminar este script?')){remove(item.id)}}
+
+        right.appendChild(copyBtn); right.appendChild(download); right.appendChild(del);
+        meta.appendChild(left); meta.appendChild(right);
+
+        const pre = document.createElement('pre');
+        const code = document.createElement('code'); code.className='language-lua'; code.textContent = item.code;
+        pre.appendChild(code);
+
+        card.appendChild(meta); card.appendChild(pre);
+        list.appendChild(card);
+      })
+
+      // re-run highlight
+      document.querySelectorAll('pre code').forEach(b=>hljs.highlightElement(b));
+    }
+
+    function escapeHtml(s){return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+
+    function fallbackCopy(txt){const ta = document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); toast('Copiado (fallback)')}catch(e){alert('No se pudo copiar') } ta.remove() }
+
+    function remove(id){const arr=load(); const next = arr.filter(x=>x.id!==id); saveAll(next); render(); toast('Eliminado')}
+
+    function downloadFile(item){const blob = new Blob([item.code], {type:'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download=(item.title||'script')+'.lua'; a.click(); URL.revokeObjectURL(url)}
+
+    // add script
+    $('#save').addEventListener('click', ()=>{
+      const title = $('#title').value.trim() || 'Sin título';
+      const tags = $('#tags').value.trim();
+      const code = $('#code').value.replace(/\t/g,'    ').replace(/\r/g,'');
+      if(!code){toast('Pega un código antes.'); return}
+
+      const arr = load();
+      // duplicate exact check
+      const isDup = arr.some(s=>s.code.trim()===code.trim());
+      if(isDup){toast('Ese código ya existe. No se guardó.'); return}
+
+      const item = {id:uid(),title, tags, code, created:Date.now()};
+      arr.push(item); saveAll(arr); render(); $('#title').value=''; $('#tags').value=''; $('#code').value=''; toast('Guardado')
+    })
+
+    $('#cancel').addEventListener('click', ()=>{ $('#title').value=''; $('#tags').value=''; $('#code').value=''; toast('Formulario reseteado') })
+
+    // export / import
+    $('#exportBtn').addEventListener('click', ()=>{
+      const arr = load(); const blob = new Blob([JSON.stringify(arr, null, 2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='bloxi-scripts.json'; a.click(); URL.revokeObjectURL(a.href);
+    })
+
+    $('#importBtn').addEventListener('click', ()=>{
+      const input = document.createElement('input'); input.type='file'; input.accept='.json';
+      input.onchange = e=>{
+        const file = e.target.files[0]; if(!file) return;
+        const reader = new FileReader(); reader.onload = ()=>{
+          try{
+            const data = JSON.parse(reader.result);
+            if(!Array.isArray(data)){alert('JSON inválido');return}
+            if(!confirm('Importar sobrescribirá tus scripts locales. Confirmas?')) return;
+            localStorage.setItem(KEY, JSON.stringify(data)); render(); toast('Importado')
+          }catch(err){alert('Error leyendo JSON')}
+        }; reader.readAsText(file);
+      };
+      input.click();
+    })
+
+    $('#clearAll').addEventListener('click', ()=>{ if(confirm('Eliminar todos los scripts?')){ localStorage.removeItem(KEY); render(); toast('Listo. Todo eliminado'); } })
+
+    // open add
+    $('#addOpen').addEventListener('click', ()=>{ window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); document.getElementById('code').focus(); })
+
+    // load initial demo if empty
+    (function init(){
+      const arr = load();
+      if(arr.length===0){
+        const demo = [{id:uid(),title:'Demo: Print Hello',tags:'demo',code:'print("Hola mundo desde Lua")',created:Date.now()}]; saveAll(demo);
+      }
+      render();
+    })();
+
+    // hide welcome after 1.6s
+    setTimeout(()=>{const w=document.getElementById('welcome'); if(w) w.style.opacity=0},1800);
+
+  </script></body>
+</html>
